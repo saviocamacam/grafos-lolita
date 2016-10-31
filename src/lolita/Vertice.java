@@ -4,8 +4,8 @@ public class Vertice {
 	
 	private int valor;
 	
-	public Vertice() {
-		
+	public Vertice(int i) {
+		this.setValor(i);
 	}
 
 	public int getValor() {

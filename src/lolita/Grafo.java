@@ -7,17 +7,17 @@ import java.util.Set;
 
 public class Grafo {
 	
-	private Set<Aresta> conjuntoArestas;
-	private Set<Vertice> conjuntoVertices;
-	private Set<Rotulo> conjuntoRotulos;
+	private LinkedList<Aresta> conjuntoArestas;
+	private LinkedList<Vertice> conjuntoVertices;
+	private LinkedList<Rotulo> conjuntoRotulos;
 	private int totalVertices;
 	private int totalRotulos;
 	private List<String> linhasBrutas;
 	
 	public Grafo(int totalVertices, int totalRotulos) {
-		this.conjuntoArestas = new HashSet<>();
-		this.conjuntoVertices = new HashSet<>();
-		this.conjuntoRotulos = new HashSet<>();
+		this.conjuntoArestas = new LinkedList<Aresta>();
+		this.conjuntoVertices = new LinkedList<Vertice>();
+		this.conjuntoRotulos = new LinkedList<Rotulo>();
 		this.setTotalVertices(totalVertices);
 		this.setTotalRotulos(totalRotulos);
 	}
@@ -28,35 +28,49 @@ public class Grafo {
 		for(i=0 ; i < totalVertices ; i++) {
 			LinkedList<Rotulo> rotulos = new LinkedList<>();
 			String[] stringRotulos = linhasBrutas.get(i).split(" ");
+			Vertice verticeI = new Vertice(i+1);
+			
+			if(!conjuntoVertices.contains(verticeI)) {
+				conjuntoVertices.add(verticeI);
+			}
 			
 			for(j=0 ; j < stringRotulos.length ; j++) {
+				Vertice verticeJ = new Vertice(j);
 				Rotulo rotulo = new Rotulo(stringRotulos[j]);
-				conjuntoRotulos.add(rotulo);
+				
+				if(!conjuntoRotulos.contains(rotulo))
+					conjuntoRotulos.add(rotulo);
+				
+				if(!conjuntoVertices.contains(verticeJ)) {
+					conjuntoVertices.add(verticeJ);
+				}
+				
+				Aresta aresta = new Aresta();
 			}
 		}
 	}
 
-	public Set<Aresta> getConjuntoArestas() {
+	public LinkedList<Aresta> getConjuntoArestas() {
 		return conjuntoArestas;
 	}
 
-	public void setConjuntoArestas(Set<Aresta> conjuntoArestas) {
+	public void setConjuntoArestas(LinkedList<Aresta> conjuntoArestas) {
 		this.conjuntoArestas = conjuntoArestas;
 	}
 
-	public Set<Vertice> getConjuntoVertices() {
+	public LinkedList<Vertice> getConjuntoVertices() {
 		return conjuntoVertices;
 	}
 
-	public void setConjuntoVertices(Set<Vertice> conjuntoVertices) {
+	public void setConjuntoVertices(LinkedList<Vertice> conjuntoVertices) {
 		this.conjuntoVertices = conjuntoVertices;
 	}
 
-	public Set<Rotulo> getConjuntoRotulos() {
+	public LinkedList<Rotulo> getConjuntoRotulos() {
 		return conjuntoRotulos;
 	}
 
-	public void setConjuntoRotulos(Set<Rotulo> conjuntoRotulos) {
+	public void setConjuntoRotulos(LinkedList<Rotulo> conjuntoRotulos) {
 		this.conjuntoRotulos = conjuntoRotulos;
 	}
 

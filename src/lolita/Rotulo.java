@@ -14,5 +14,10 @@ public class Rotulo {
 	public void setValor(int valor) {
 		this.valor = valor;
 	}
+	
+	@Override
+	public boolean equals(Object o) {
+		return this.valor == ((Rotulo) o).getValor();
+	}
 
 }
