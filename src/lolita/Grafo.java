@@ -45,7 +45,10 @@ public class Grafo {
 					conjuntoVertices.add(verticeJ);
 				}
 				
-				Aresta aresta = new Aresta();
+				if(rotulo.getValor() != this.totalRotulos) {
+					Aresta aresta = new Aresta(rotulo, verticeI, verticeJ);
+					conjuntoArestas.add(aresta);
+				}
 			}
 		}
 	}

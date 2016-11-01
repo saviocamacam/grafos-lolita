@@ -6,8 +6,10 @@ public class Aresta {
 	private Vertice origem;
 	private Vertice destino;
 	
-	public Aresta() {
-		
+	public Aresta(Rotulo rotulo, Vertice verticeI, Vertice verticeJ) {
+		this.setRotulo(rotulo);
+		this.setOrigem(verticeI);
+		this.setDestino(verticeJ);
 	}
 
 	public Rotulo getRotulo() {
