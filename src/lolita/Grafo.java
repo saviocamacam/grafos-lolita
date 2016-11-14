@@ -45,6 +45,7 @@ public class Grafo {
 				
 				if(rotulo.getValor() != this.totalRotulos) {
 					Aresta aresta = new Aresta(rotulo, verticeI, verticeJ);
+					conjuntoVertices.get(conjuntoVertices.indexOf(verticeI)).getConjuntoLocalAresta().add(aresta);
 					conjuntoArestas.add(aresta);
 				}
 			}
