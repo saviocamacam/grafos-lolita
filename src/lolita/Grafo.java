@@ -1,9 +1,7 @@
 package lolita;
 
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 public class Grafo {
 	
@@ -25,7 +23,7 @@ public class Grafo {
 	public void paranaue() {
 		int i, j;
 		
-		for(i=0 ; i < totalVertices ; i++) {
+		for(i=0 ; i < totalVertices - 1 ; i++) {
 			LinkedList<Rotulo> rotulos = new LinkedList<>();
 			String[] stringRotulos = linhasBrutas.get(i).split(" ");
 			Vertice verticeI = new Vertice(i+1);

@@ -36,6 +36,8 @@ public class GerenciadorArquivos {
 		   Collections.reverse(grafo.getLinhasBrutas());
 		   grafo.paranaue();
 		   grafos.add(grafo);
+		   fromIndex = totalVertices;
+		   toIndex = toIndex + totalVertices;
 	   }
 	   
 	   
