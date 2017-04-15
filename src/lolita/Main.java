@@ -21,6 +21,7 @@ public class Main {
 				LinkedList<Grafo> listaGrafos = gerenciador.lerArquivoTransacao(file.toPath());
 				
 				Grafo g = listaGrafos.pop();
+				//g.printAdjacenceMatrix();
 				g.generateMLST();
 				
 				/*while(!listaGrafos.isEmpty()) {

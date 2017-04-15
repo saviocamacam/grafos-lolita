@@ -52,6 +52,7 @@ public class GerenciadorArquivos {
 			Grafo grafo = new Grafo(totalVertices, totalRotulos);
 			grafo.setLinhasBrutas(linhas.subList(fromIndex, toIndex));
 			Collections.reverse(grafo.getLinhasBrutas());
+			System.out.println("\nGrao " + i);
 			grafo.matrixGenerate();
 			//grafo.printMatrix(grafo.getIncidenceMatrix());
 			//grafo.geraGrafo();

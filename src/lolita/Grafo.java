@@ -1,5 +1,6 @@
 package lolita;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -13,6 +14,7 @@ public class Grafo {
 	private int totalRotulos;
 	private List<String> linhasBrutas;
 	private int incidenceMatrix[][];
+	private LinkedList<LinkedList<Integer>> adjacenceList;
 	private LinkedList<int[][]> listOfSubgraphs;
 	
 	public Grafo(int totalVertices, int totalRotulos) {
@@ -23,8 +25,17 @@ public class Grafo {
 		this.setTotalRotulos(totalRotulos);
 		this.incidenceMatrix = new int[totalVertices][totalVertices];
 		this.listOfSubgraphs = new LinkedList<>();
+		this.adjacenceList = new LinkedList<>();
+		initializeAdjacenceList();
 	}
 	
+	private void initializeAdjacenceList() {
+		int i;
+		for(i=0; i<totalVertices;i++) {
+			adjacenceList.add(new LinkedList<>());
+		}
+	}
+
 	public void matrixGenerate() {
 		int i, j;
 		
@@ -34,15 +45,33 @@ public class Grafo {
 			
 			for(j=0; j<stringRotulos.length; j++) {
 				this.incidenceMatrix[i+1][j] = Integer.valueOf(stringRotulos[j]);
+				
+				if(incidenceMatrix[i+1][j] != totalRotulos) {
+					adjacenceList.get(i+1).add(j);
+					adjacenceList.get(j).add(i+1);
+				}
 			}
 		}
+		printAdjacenceMatrix();
 		incidenceMatrix[totalVertices-1][totalVertices-1] = -1;
 	}
 	
+	public void printAdjacenceMatrix() {
+		int i, j;
+		
+		for(i=0; i<totalVertices;i++) {
+			System.out.print(i + ": ");
+			for(j=0; j<adjacenceList.get(i).size(); j++) {
+				System.out.print(adjacenceList.get(i).get(j)+" ");
+			}
+			System.out.println("");
+		}
+	}
+
 	public void generateMLST() {
 		getSubGraphs();
 		printSubgraphs();
-		System.out.println("<<<<<<<<<<<<<");
+		//System.out.println("<<<<<<<<<<<<<");
 		printMatrix(incidenceMatrix);
 	}
 	
@@ -61,15 +90,20 @@ public class Grafo {
 	}
 
 	private int[][] getSubGraphOf(int label) {
-		System.out.println("Subgraph Label: " + label);
-		int subGraph[][] = incidenceMatrix, i, j;
+		//System.out.println("Subgraph Label: " + label);
+		int i, j;
+		int subGraph[][] = new int[totalVertices][totalVertices];
+		subGraph = Arrays.stream(incidenceMatrix)
+	             .map((int[] row) -> row.clone())
+	             .toArray((int length) -> new int[length][]);
+		
 		for(i=0;i<totalVertices; i++) {
 			for(j=0; j<totalVertices; j++) {
 				if(subGraph[i][j] != -1 && subGraph[i][j] != label)
 					subGraph[i][j] = totalRotulos;
 			}
 		}
-		printMatrix(subGraph);
+		//printMatrix(subGraph);
 		return subGraph;
 	}
 
