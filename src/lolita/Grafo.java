@@ -4,8 +4,6 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.omg.CORBA.INITIALIZE;
-
 public class Grafo {
 	
 	private LinkedList<Aresta> conjuntoArestas;
@@ -15,6 +13,7 @@ public class Grafo {
 	private int totalRotulos;
 	private List<String> linhasBrutas;
 	private int incidenceMatrix[][];
+	private LinkedList<int[][]> listOfSubgraphs;
 	
 	public Grafo(int totalVertices, int totalRotulos) {
 		this.conjuntoArestas = new LinkedList<Aresta>();
@@ -23,6 +22,7 @@ public class Grafo {
 		this.setTotalVertices(totalVertices);
 		this.setTotalRotulos(totalRotulos);
 		this.incidenceMatrix = new int[totalVertices][totalVertices];
+		this.listOfSubgraphs = new LinkedList<>();
 	}
 	
 	public void matrixGenerate() {
@@ -39,11 +39,42 @@ public class Grafo {
 		incidenceMatrix[totalVertices-1][totalVertices-1] = -1;
 	}
 	
+	public void generateMLST() {
+		getSubGraphs();
+		printSubgraphs();
+	}
+	
+	private void printSubgraphs() {
+		int i;
+		for(i=0; i<totalRotulos;i++) {
+			
+		}
+	}
+
+	private void getSubGraphs() {
+		int i;
+		for(i=0; i<totalRotulos;i++) {
+			listOfSubgraphs.add(getSubGraphOf(i));
+		}
+	}
+
+	private int[][] getSubGraphOf(int label) {
+		int subGraph[][] = incidenceMatrix, i, j;
+		for(i=0;i<totalVertices; i++) {
+			for(j=0; j<totalVertices; j++) {
+				if(subGraph[i][j] != -1 || subGraph[i][j] != label)
+					subGraph[i][j] = totalRotulos;
+			}
+		}
+		printMatrix(subGraph);
+		return subGraph;
+	}
+
 	public void geraGrafo() {
 		int i, j;
 		
 		for(i=0 ; i < totalVertices - 1 ; i++) {
-			LinkedList<Rotulo> rotulos = new LinkedList<>();
+			//LinkedList<Rotulo> rotulos = new LinkedList<>();
 			String[] stringRotulos = linhasBrutas.get(i).split(" ");
 			Vertice verticeI = new Vertice(i+1);
 			
@@ -119,17 +150,17 @@ public class Grafo {
 		this.linhasBrutas = linhasBrutas;
 	}
 
-	public void generateMLST() {
-		
-	}
-
-	public void printMatrix() {
+	public void printMatrix(int[][] ks) {
 		int i, j;
 		for(i=0; i<totalVertices; i++) {
 			for(j=0; j<totalVertices; j++) {
-				System.out.print(incidenceMatrix[i][j]+" ");
+				System.out.print(ks[i][j]+" ");
 			}
 			System.out.println("");
 		}
+	}
+
+	public int[][] getIncidenceMatrix() {
+		return incidenceMatrix;
 	}
 }
