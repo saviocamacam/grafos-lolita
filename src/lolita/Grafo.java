@@ -42,6 +42,8 @@ public class Grafo {
 	public void generateMLST() {
 		getSubGraphs();
 		printSubgraphs();
+		System.out.println("<<<<<<<<<<<<<");
+		printMatrix(incidenceMatrix);
 	}
 	
 	private void printSubgraphs() {
@@ -59,10 +61,11 @@ public class Grafo {
 	}
 
 	private int[][] getSubGraphOf(int label) {
+		System.out.println("Subgraph Label: " + label);
 		int subGraph[][] = incidenceMatrix, i, j;
 		for(i=0;i<totalVertices; i++) {
 			for(j=0; j<totalVertices; j++) {
-				if(subGraph[i][j] != -1 || subGraph[i][j] != label)
+				if(subGraph[i][j] != -1 && subGraph[i][j] != label)
 					subGraph[i][j] = totalRotulos;
 			}
 		}
