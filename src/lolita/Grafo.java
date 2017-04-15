@@ -1,7 +1,10 @@
 package lolita;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+
+import org.omg.CORBA.INITIALIZE;
 
 public class Grafo {
 	
@@ -11,6 +14,7 @@ public class Grafo {
 	private int totalVertices;
 	private int totalRotulos;
 	private List<String> linhasBrutas;
+	private int incidenceMatrix[][];
 	
 	public Grafo(int totalVertices, int totalRotulos) {
 		this.conjuntoArestas = new LinkedList<Aresta>();
@@ -18,9 +22,24 @@ public class Grafo {
 		this.conjuntoRotulos = new LinkedList<Rotulo>();
 		this.setTotalVertices(totalVertices);
 		this.setTotalRotulos(totalRotulos);
+		this.incidenceMatrix = new int[totalVertices][totalVertices];
 	}
 	
-	public void paranaue() {
+	public void matrixGenerate() {
+		int i, j;
+		
+		for(i=0; i<totalVertices -1 ; i++) {
+			Arrays.fill(incidenceMatrix[i], i, totalVertices, -1);
+			String[] stringRotulos = linhasBrutas.get(i).split(" ");
+			
+			for(j=0; j<stringRotulos.length; j++) {
+				this.incidenceMatrix[i+1][j] = Integer.valueOf(stringRotulos[j]);
+			}
+		}
+		incidenceMatrix[totalVertices-1][totalVertices-1] = -1;
+	}
+	
+	public void geraGrafo() {
 		int i, j;
 		
 		for(i=0 ; i < totalVertices - 1 ; i++) {
@@ -98,5 +117,19 @@ public class Grafo {
 
 	public void setLinhasBrutas(List<String> linhasBrutas) {
 		this.linhasBrutas = linhasBrutas;
+	}
+
+	public void generateMLST() {
+		
+	}
+
+	public void printMatrix() {
+		int i, j;
+		for(i=0; i<totalVertices; i++) {
+			for(j=0; j<totalVertices; j++) {
+				System.out.print(incidenceMatrix[i][j]+" ");
+			}
+			System.out.println("");
+		}
 	}
 }
