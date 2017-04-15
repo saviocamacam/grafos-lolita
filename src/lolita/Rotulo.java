@@ -3,8 +3,8 @@ package lolita;
 public class Rotulo {
 	private int valor;
 	
-	public Rotulo(String stringRotulos) {
-		this.setValor(Integer.valueOf(stringRotulos));
+	public Rotulo(int labelValue) {
+		this.setValor(labelValue);
 	}
 
 	public int getValor() {

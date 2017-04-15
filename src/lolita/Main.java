@@ -20,9 +20,10 @@ public class Main {
 				File file = gerenciador.getFile(4); //File file = gerenciador.getFile(j)
 				LinkedList<Grafo> listaGrafos = gerenciador.lerArquivoTransacao(file.toPath());
 				
-				Grafo g = listaGrafos.pop();
-				//g.printAdjacenceMatrix();
+				Grafo g = listaGrafos.get(2);
+				g.printAdjacenceMatrix();
 				g.generateMLST();
+				g.printLabelSetProperties();
 				
 				/*while(!listaGrafos.isEmpty()) {
 					Grafo g = listaGrafos.pop();

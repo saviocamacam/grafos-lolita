@@ -1,7 +1,9 @@
 package lolita;
 
-import java.util.ArrayList;
+import java.text.Collator;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -16,6 +18,7 @@ public class Grafo {
 	private int incidenceMatrix[][];
 	private LinkedList<LinkedList<Integer>> adjacenceList;
 	private LinkedList<int[][]> listOfSubgraphs;
+	private int totalEdges = 0;
 	
 	public Grafo(int totalVertices, int totalRotulos) {
 		this.conjuntoArestas = new LinkedList<Aresta>();
@@ -47,12 +50,20 @@ public class Grafo {
 				this.incidenceMatrix[i+1][j] = Integer.valueOf(stringRotulos[j]);
 				
 				if(incidenceMatrix[i+1][j] != totalRotulos) {
+					totalEdges  += 1;
 					adjacenceList.get(i+1).add(j);
 					adjacenceList.get(j).add(i+1);
+					
+					Rotulo rotulo = new Rotulo(incidenceMatrix[i+1][j]);
+					
+					if(!conjuntoRotulos.contains(rotulo))
+						conjuntoRotulos.add(rotulo);
 				}
 			}
 		}
-		printAdjacenceMatrix();
+		//printAdjacenceMatrix();
+		//System.out.println("Total de Arestas: " + totalEdges);
+		
 		incidenceMatrix[totalVertices-1][totalVertices-1] = -1;
 	}
 	
@@ -66,22 +77,15 @@ public class Grafo {
 			}
 			System.out.println("");
 		}
+		System.out.println("");
 	}
 
 	public void generateMLST() {
 		getSubGraphs();
-		printSubgraphs();
 		//System.out.println("<<<<<<<<<<<<<");
 		printMatrix(incidenceMatrix);
 	}
 	
-	private void printSubgraphs() {
-		int i;
-		for(i=0; i<totalRotulos;i++) {
-			
-		}
-	}
-
 	private void getSubGraphs() {
 		int i;
 		for(i=0; i<totalRotulos;i++) {
@@ -121,7 +125,7 @@ public class Grafo {
 			
 			for(j=0 ; j < stringRotulos.length ; j++) {
 				Vertice verticeJ = new Vertice(j);
-				Rotulo rotulo = new Rotulo(stringRotulos[j]);
+				Rotulo rotulo = new Rotulo(Integer.valueOf(stringRotulos[j]));
 				
 				if(!conjuntoRotulos.contains(rotulo))
 					conjuntoRotulos.add(rotulo);
@@ -194,6 +198,25 @@ public class Grafo {
 				System.out.print(ks[i][j]+" ");
 			}
 			System.out.println("");
+		}
+	}
+	
+	public void printLabelSetProperties() {
+		Collections.sort(conjuntoRotulos, new Comparator<Rotulo>() {
+	         @Override
+	         public int compare(Rotulo o1, Rotulo o2) {
+	        	 if(o1.getValor() < o2.getValor()) {
+	        		 return -1;
+	        	 }
+	        	 if(o1.getValor() > o2.getValor()) {
+	        		 return 1;
+	        	 }
+	             return 0;
+	         }
+	     });
+		
+		for(Rotulo r: conjuntoRotulos) {
+			System.out.println(r.getValor());
 		}
 	}
 
