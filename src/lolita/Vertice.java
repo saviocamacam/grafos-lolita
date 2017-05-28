@@ -5,14 +5,28 @@ import java.util.LinkedList;
 public class Vertice {
 	
 	private int valor;
+	private int labelAdjacentFor;
 	private LinkedList<Aresta> conjuntoLocalAresta;
 	
-	public Vertice(int i) {
+	public Vertice(int i, int label) {
 		this.setValor(i);
+		this.setLabelAdjacentFor(label);
+	}
+
+	public Vertice(int j) {
+		this.setValor(j);
+	}
+
+	private void setLabelAdjacentFor(int label) {
+		this.labelAdjacentFor = label;
 	}
 
 	public int getValor() {
 		return valor;
+	}
+	
+	public int getLabelAdjacentFor() {
+		return labelAdjacentFor;
 	}
 
 	public void setValor(int valor) {

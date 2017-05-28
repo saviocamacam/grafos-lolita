@@ -4,6 +4,8 @@ import java.text.Collator;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -16,8 +18,8 @@ public class Grafo {
 	private int totalRotulos;
 	private List<String> linhasBrutas;
 	private int incidenceMatrix[][];
-	private LinkedList<LinkedList<Integer>> adjacenceList;
-	private LinkedList<int[][]> listOfSubgraphs;
+	private LinkedList<LinkedList<Vertice>> adjacenceList;
+	private LinkedList<SubGraph> listOfSubgraphs;
 	private int totalEdges = 0;
 	
 	public Grafo(int totalVertices, int totalRotulos) {
@@ -51,8 +53,8 @@ public class Grafo {
 				
 				if(incidenceMatrix[i+1][j] != totalRotulos) {
 					totalEdges  += 1;
-					adjacenceList.get(i+1).add(j);
-					adjacenceList.get(j).add(i+1);
+					adjacenceList.get(i+1).add(new Vertice(j));
+					adjacenceList.get(j).add(new Vertice(i+1));
 					
 					Rotulo rotulo = new Rotulo(incidenceMatrix[i+1][j]);
 					
@@ -67,13 +69,13 @@ public class Grafo {
 		incidenceMatrix[totalVertices-1][totalVertices-1] = -1;
 	}
 	
-	public void printAdjacenceMatrix() {
+	public void printAdjacenceList() {
 		int i, j;
-		
+		System.out.println("Lista de Adjacencias");
 		for(i=0; i<totalVertices;i++) {
 			System.out.print(i + ": ");
 			for(j=0; j<adjacenceList.get(i).size(); j++) {
-				System.out.print(adjacenceList.get(i).get(j)+" ");
+				System.out.print(adjacenceList.get(i).get(j).getValor() +" ");
 			}
 			System.out.println("");
 		}
@@ -81,11 +83,64 @@ public class Grafo {
 	}
 
 	public void generateMLST() {
+		//printIncidenceMatrix(-1, incidenceMatrix);
+		long startTime = System.currentTimeMillis();
+		
 		getSubGraphs();
-		//System.out.println("<<<<<<<<<<<<<");
-		printMatrix(incidenceMatrix);
+		orderSubGraphs();
+		printSubGraphsProperties();
+		
+		long endTime = System.currentTimeMillis();
+		long duration = endTime - startTime;
+		
+		System.out.println("HashSet: " + duration);
+		
+		
 	}
 	
+	private void orderSubGraphs() {
+		Collections.sort(listOfSubgraphs, new Comparator<SubGraph>() {
+	         @Override
+	         public int compare(SubGraph s1, SubGraph s2) {
+	        	 if(s1.getMaxComponent() > s2.getMaxComponent()) {
+	        		 return -1;
+	        	 }
+	        	 if(s1.getMaxComponent() < s2.getMaxComponent()) {
+	        		 return 1;
+	        	 }
+	        	 if(s1.getMaxComponent() == s2.getMaxComponent()) {
+	        		 if(s1.getComponents() > s2.getComponents())
+	        			 return -1;
+	        		 if(s1.getComponents() < s2.getComponents())
+	        			 return 1;
+	        		 if(s1.getComponents() == s2.getComponents()) {
+	        			 if(s1.getConjuntoVertices().size() > s2.getConjuntoVertices().size())
+	        				 return -1;
+	        			 if(s1.getConjuntoVertices().size() < s2.getConjuntoVertices().size())
+	        				 return 1;
+	        		 }
+	        	 }
+	             return 0;
+	         }
+	     });
+	}
+	
+	private void printSubGraphsProperties() {
+		for(SubGraph s: listOfSubgraphs) {
+			System.out.print("SubGraphOfLabel: " + s.getLabel() + ", with " + s.getArestas()  + " edges between ");
+			Iterator<Integer> iterator = s.getConjuntoVertices().iterator();
+			while(iterator.hasNext()) {
+				System.out.print(iterator.next() + ", ");
+			}
+			System.out.print(" grouped in " + s.getComponents() + " component as ");
+			Iterator<HashSet<Integer>> iterator2 = s.getComponentsSet().iterator();
+			while(iterator2.hasNext()) {
+				System.out.print(iterator2.next() + ", ");
+			}
+			System.out.println();
+		}
+	}
+
 	private void getSubGraphs() {
 		int i;
 		for(i=0; i<totalRotulos;i++) {
@@ -93,24 +148,78 @@ public class Grafo {
 		}
 	}
 
-	private int[][] getSubGraphOf(int label) {
-		//System.out.println("Subgraph Label: " + label);
+	private SubGraph getSubGraphOf(int label) {
 		int i, j;
-		int subGraph[][] = new int[totalVertices][totalVertices];
-		subGraph = Arrays.stream(incidenceMatrix)
+		int matrixOfSubGraph[][] = new int[totalVertices][totalVertices];
+		matrixOfSubGraph = Arrays.stream(incidenceMatrix)
 	             .map((int[] row) -> row.clone())
 	             .toArray((int length) -> new int[length][]);
 		
-		for(i=0;i<totalVertices; i++) {
-			for(j=0; j<totalVertices; j++) {
-				if(subGraph[i][j] != -1 && subGraph[i][j] != label)
-					subGraph[i][j] = totalRotulos;
+		LinkedList<HashSet<Integer>> listSet = new LinkedList<>();
+		int arestas = 0;
+		HashSet<Integer> hash = new HashSet<>();
+		listSet.add(new HashSet<>());
+		int jDimension = 0;
+		
+		for(i=0 ; i < totalVertices; i++) {
+			for(j=0; j < jDimension; j++) {
+				
+				if(/*matrixOfSubGraph[i][j] != -1 && */matrixOfSubGraph[i][j] != label && matrixOfSubGraph[i][j] != totalRotulos)
+					matrixOfSubGraph[i][j] = totalRotulos;
+				if(matrixOfSubGraph[i][j] == label) {
+					hash.add(i);
+					hash.add(j);
+					boolean added = false;
+					int indexJ = 0, indexI = 0;
+					for(HashSet<Integer> hs : listSet) {
+						if(hs.isEmpty() || hs.contains(i)) {
+							//hs.add(i);
+							hs.add(j);
+							added = true;
+							indexI = listSet.indexOf(hs);
+						} 
+					}
+					
+					for(HashSet<Integer> hs : listSet) {
+						if(hs.isEmpty() || hs.contains(j)) {
+							hs.add(i);
+							//hs.add(j);
+							added = true;
+							indexJ = listSet.indexOf(hs);
+							if(indexJ != indexI)
+								break;
+						} 
+					}
+					
+					if(indexI != indexJ) {
+						HashSet<Integer> h1 = listSet.get(indexI);
+						listSet.get(indexJ).addAll(h1);
+						listSet.remove(indexI);
+					}
+					
+					if(!added) {
+						HashSet<Integer> hs = new HashSet<>();
+						hs.add(i);
+						hs.add(j);
+						listSet.add(hs);
+					}
+					arestas++;
+				}
 			}
+			//printIncidenceMatrix(label, matrixOfSubGraph);
+			if(jDimension <= totalVertices)
+				jDimension++;
 		}
-		//printMatrix(subGraph);
+		
+		SubGraph subGraph = new SubGraph(label, matrixOfSubGraph);
+		subGraph.setArestas(arestas);
+		subGraph.setConjuntoVertices(hash);
+		subGraph.setComponentsSet(listSet);
+		subGraph.setComponents(listSet.size());
+		//printIncidenceMatrix(label, subGraph.getIncidenceMatrix());
 		return subGraph;
 	}
-
+	
 	public void geraGrafo() {
 		int i, j;
 		
@@ -191,8 +300,9 @@ public class Grafo {
 		this.linhasBrutas = linhasBrutas;
 	}
 
-	public void printMatrix(int[][] ks) {
+	public void printIncidenceMatrix(int label, int[][] ks) {
 		int i, j;
+		System.out.println("Matriz de Incidências: " + label);
 		for(i=0; i<totalVertices; i++) {
 			for(j=0; j<totalVertices; j++) {
 				System.out.print(ks[i][j]+" ");
