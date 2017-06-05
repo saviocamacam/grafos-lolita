@@ -17,7 +17,7 @@ public class Vertice {
 		this.setValor(j);
 	}
 
-	private void setLabelAdjacentFor(int label) {
+	public void setLabelAdjacentFor(int label) {
 		this.labelAdjacentFor = label;
 	}
 

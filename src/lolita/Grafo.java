@@ -1,6 +1,5 @@
 package lolita;
 
-import java.text.Collator;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -53,8 +52,14 @@ public class Grafo {
 				
 				if(incidenceMatrix[i+1][j] != totalRotulos) {
 					totalEdges  += 1;
-					adjacenceList.get(i+1).add(new Vertice(j));
-					adjacenceList.get(j).add(new Vertice(i+1));
+					Vertice vj = new Vertice(j);
+					vj.setLabelAdjacentFor(incidenceMatrix[i+1][j]);
+					adjacenceList.get(i+1).add(vj);
+					
+					
+					Vertice vi = new Vertice(i+1);
+					vi.setLabelAdjacentFor(incidenceMatrix[i+1][j]);
+					adjacenceList.get(j).add(vi);
 					
 					Rotulo rotulo = new Rotulo(incidenceMatrix[i+1][j]);
 					
@@ -75,14 +80,14 @@ public class Grafo {
 		for(i=0; i<totalVertices;i++) {
 			System.out.print(i + ": ");
 			for(j=0; j<adjacenceList.get(i).size(); j++) {
-				System.out.print(adjacenceList.get(i).get(j).getValor() +" ");
+				System.out.print(adjacenceList.get(i).get(j).getValor() +"(" + adjacenceList.get(i).get(j).getLabelAdjacentFor() + ")" + " ");
 			}
 			System.out.println("");
 		}
 		System.out.println("");
 	}
 
-	public void generateMLST() {
+	public int generateMLST() {
 		//printIncidenceMatrix(-1, incidenceMatrix);
 		long startTime = System.currentTimeMillis();
 		
@@ -90,12 +95,82 @@ public class Grafo {
 		orderSubGraphs();
 		printSubGraphsProperties();
 		
+		HashSet<String> labelsMLST = new HashSet<String>();
+		labelsMLST.add("L" + listOfSubgraphs.get(0).getLabel() + "; ");
+		SubGraph main = this.listOfSubgraphs.get(0);
+		int i=1;
+		
+		
+		while(main.getConjuntoVertices().size() != this.totalVertices && i < totalVertices) {
+			SubGraph proximo = listOfSubgraphs.get(i);
+			
+			int indexNext = -1;
+			LinkedList<Integer> unionList = new LinkedList<>();
+			LinkedList<HashSet<Integer>> newComponentsSet = new LinkedList<HashSet<Integer>>();
+			boolean unionFlag = false;
+			
+			for(HashSet<Integer> hs1 : main.getComponentsSet()) {
+				
+				for(HashSet<Integer> hs2 : proximo.getComponentsSet()) {
+					indexNext = proximo.getComponentsSet().indexOf(hs2);
+					
+					HashSet<Integer> intersection = new HashSet<Integer>(hs2);
+					intersection.retainAll(hs1);
+					
+					if(intersection.size() != 0 && intersection.size() < hs2.size() && intersection.size() < hs1.size()) {
+						unionList.add(indexNext);
+					}
+				}
+				
+				HashSet<Integer> intersection = new HashSet<Integer>(hs1);
+				
+				if(unionList.size() > 0){
+					unionFlag = true;
+					for(Integer integer : unionList) {
+						intersection.addAll(proximo.getComponentsSet().get(integer));
+					}
+					labelsMLST.add("L" + proximo.getLabel() + "; ");
+				}
+				newComponentsSet.add(intersection);
+				unionList = new LinkedList<>();
+			}
+			
+			for(HashSet<Integer> hs1 : newComponentsSet) {
+				for(HashSet<Integer> hs2 : newComponentsSet) {
+					HashSet<Integer> intersection = new HashSet<Integer>(hs1);
+					intersection.retainAll(hs2);
+					if(intersection.size() != 0 && hs1 != hs2) {
+						hs1.addAll(hs2);
+						newComponentsSet.remove(hs2);
+					}
+				}
+			}
+			
+			main.setComponentsSet(newComponentsSet);
+			
+			if(unionFlag) {
+				main.getConjuntoVertices().addAll(proximo.getConjuntoVertices());
+				unionFlag = false;
+				listOfSubgraphs.remove(proximo);
+			}
+			else
+				i++;
+			System.out.println("");
+			printSubGraphsProperties();
+		}
+		
 		long endTime = System.currentTimeMillis();
 		long duration = endTime - startTime;
 		
 		System.out.println("HashSet: " + duration);
+		System.out.print("Labels: ");
 		
+		Iterator<String> iterator = labelsMLST.iterator();
+		while(iterator.hasNext()) {
+			System.out.print(iterator.next());
+		}
 		
+		return labelsMLST.size();
 	}
 	
 	private void orderSubGraphs() {
@@ -164,11 +239,13 @@ public class Grafo {
 		for(i=0 ; i < totalVertices; i++) {
 			for(j=0; j < jDimension; j++) {
 				
-				if(/*matrixOfSubGraph[i][j] != -1 && */matrixOfSubGraph[i][j] != label && matrixOfSubGraph[i][j] != totalRotulos)
+				if (/*matrixOfSubGraph[i][j] != -1 && */matrixOfSubGraph[i][j] != label && matrixOfSubGraph[i][j] != totalRotulos)
 					matrixOfSubGraph[i][j] = totalRotulos;
-				if(matrixOfSubGraph[i][j] == label) {
+				if (matrixOfSubGraph[i][j] == label) {
 					hash.add(i);
 					hash.add(j);
+					
+					
 					boolean added = false;
 					int indexJ = 0, indexI = 0;
 					for(HashSet<Integer> hs : listSet) {
@@ -216,7 +293,7 @@ public class Grafo {
 		subGraph.setConjuntoVertices(hash);
 		subGraph.setComponentsSet(listSet);
 		subGraph.setComponents(listSet.size());
-		//printIncidenceMatrix(label, subGraph.getIncidenceMatrix());
+		printIncidenceMatrix(label, subGraph.getIncidenceMatrix());
 		return subGraph;
 	}
 	
@@ -302,7 +379,7 @@ public class Grafo {
 
 	public void printIncidenceMatrix(int label, int[][] ks) {
 		int i, j;
-		System.out.println("Matriz de Incidências: " + label);
+		System.out.println("Matriz de Incidï¿½ncias: " + label);
 		for(i=0; i<totalVertices; i++) {
 			for(j=0; j<totalVertices; j++) {
 				System.out.print(ks[i][j]+" ");
