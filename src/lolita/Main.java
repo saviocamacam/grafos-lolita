@@ -20,7 +20,7 @@ public class Main {
 				File file = gerenciador.getFile(5); //File file = gerenciador.getFile(j) aqui eu pego o arquivo na pasta Arquivo 3 ou 7 para pasta 5. Arquivo 4 para pasta 0.
 				LinkedList<Grafo> listaGrafos = gerenciador.lerArquivoTransacao(file.toPath());
 				
-				Grafo g = listaGrafos.get(1); //Aqui eu pego o grafo no arquivo
+				Grafo g = listaGrafos.get(0); //Aqui eu pego o grafo no arquivo
 				
 				g.printAdjacenceList();
 				g.generateMLST();

@@ -117,7 +117,7 @@ public class Grafo {
 					HashSet<Integer> intersection = new HashSet<Integer>(hs2);
 					intersection.retainAll(hs1);
 					
-					if(intersection.size() != 0 && intersection.size() < hs2.size() && intersection.size() < hs1.size()) {
+					if(intersection.size() != 0 && intersection.size() < hs2.size() && intersection.size() < hs1.size() || (hs1.size() < hs2.size() && intersection.size() == hs1.size())) {
 						unionList.add(indexNext);
 					}
 				}
@@ -135,15 +135,26 @@ public class Grafo {
 				unionList = new LinkedList<>();
 			}
 			
+
+			HashSet<Integer> indexRemove = new HashSet<>();
+			
 			for(HashSet<Integer> hs1 : newComponentsSet) {
 				for(HashSet<Integer> hs2 : newComponentsSet) {
-					HashSet<Integer> intersection = new HashSet<Integer>(hs1);
-					intersection.retainAll(hs2);
-					if(intersection.size() != 0 && hs1 != hs2) {
-						hs1.addAll(hs2);
-						newComponentsSet.remove(hs2);
+					if(hs1.size() > hs2.size() && hs1 != hs2) {
+						HashSet<Integer> intersection = new HashSet<Integer>(hs1);
+						intersection.retainAll(hs2);
+						
+						if(intersection.size() != 0) {
+							hs1.addAll(hs2);
+							indexRemove.add(newComponentsSet.indexOf(hs2));
+						}
 					}
 				}
+			}
+			
+			for(Integer index : indexRemove) {
+				HashSet<Integer> hs = newComponentsSet.get(index);
+				newComponentsSet.remove(hs);
 			}
 			
 			main.setComponentsSet(newComponentsSet);
