@@ -39,7 +39,7 @@ public class SubGraph {
 		this.incidenceMatrix = incidenceMatrix;
 	}
 
-	public void setArestas(int arestas) {
+	public void setEdges(int arestas) {
 		this.arestas = arestas;
 	}
 

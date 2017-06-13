@@ -72,8 +72,18 @@ public class Grafo {
 		//System.out.println("Total de Arestas: " + totalEdges);
 		
 		incidenceMatrix[totalVertices-1][totalVertices-1] = -1;
+		totalVertices = recountTotalVertices();
 	}
 	
+	private int recountTotalVertices() {
+		int sum=0;
+		for(LinkedList<Vertice> l : adjacenceList) {
+			if(l.size() == 0)
+				sum++;
+		}
+		return totalVertices-sum;
+	}
+
 	public void printAdjacenceList() {
 		int i, j;
 		System.out.println("Lista de Adjacencias");
@@ -93,32 +103,36 @@ public class Grafo {
 		
 		getSubGraphs();
 		orderSubGraphs();
-		printSubGraphsProperties();
+		//printSubGraphsProperties();
 		
 		HashSet<String> labelsMLST = new HashSet<String>();
 		labelsMLST.add("L" + listOfSubgraphs.get(0).getLabel() + "; ");
-		SubGraph main = this.listOfSubgraphs.get(0);
+		SubGraph mainSubgraph = this.listOfSubgraphs.get(0);
 		int i=1;
 		
 		
-		while(main.getConjuntoVertices().size() != this.totalVertices && i < totalVertices) {
-			SubGraph proximo = listOfSubgraphs.get(i);
+		while(mainSubgraph.getConjuntoVertices().size() != this.totalVertices && i < totalRotulos) {
+			SubGraph nextSubgraph = listOfSubgraphs.get(i);
 			
 			int indexNext = -1;
 			LinkedList<Integer> unionList = new LinkedList<>();
-			LinkedList<HashSet<Integer>> newComponentsSet = new LinkedList<HashSet<Integer>>();
+			LinkedList<HashSet<Integer>> auxComponentsSet = new LinkedList<HashSet<Integer>>();
 			boolean unionFlag = false;
 			
-			for(HashSet<Integer> hs1 : main.getComponentsSet()) {
+			for(HashSet<Integer> hs1 : mainSubgraph.getComponentsSet()) {
 				
-				for(HashSet<Integer> hs2 : proximo.getComponentsSet()) {
-					indexNext = proximo.getComponentsSet().indexOf(hs2);
+				for(HashSet<Integer> hs2 : nextSubgraph.getComponentsSet()) {
+					indexNext = nextSubgraph.getComponentsSet().indexOf(hs2);
 					
 					HashSet<Integer> intersection = new HashSet<Integer>(hs2);
 					intersection.retainAll(hs1);
 					
 					if(intersection.size() != 0 && intersection.size() < hs2.size() && intersection.size() < hs1.size() || (hs1.size() < hs2.size() && intersection.size() == hs1.size())) {
 						unionList.add(indexNext);
+					}
+					else if(hasIntersection(mainSubgraph.getConjuntoVertices(), nextSubgraph.getConjuntoVertices())) {
+						if(!auxComponentsSet.contains(hs2))
+							auxComponentsSet.add(hs2);
 					}
 				}
 				
@@ -127,45 +141,47 @@ public class Grafo {
 				if(unionList.size() > 0){
 					unionFlag = true;
 					for(Integer integer : unionList) {
-						intersection.addAll(proximo.getComponentsSet().get(integer));
+						intersection.addAll(nextSubgraph.getComponentsSet().get(integer));
 					}
-					labelsMLST.add("L" + proximo.getLabel() + "; ");
+					labelsMLST.add("L" + nextSubgraph.getLabel() + "; ");
 				}
-				newComponentsSet.add(intersection);
+				auxComponentsSet.add(intersection);
 				unionList = new LinkedList<>();
 			}
 			
 
 			HashSet<Integer> indexRemove = new HashSet<>();
+			LinkedList<HashSet<Integer>> finalComponentsSet = new LinkedList<HashSet<Integer>>();
 			
-			for(HashSet<Integer> hs1 : newComponentsSet) {
-				for(HashSet<Integer> hs2 : newComponentsSet) {
+			for(HashSet<Integer> hs1 : auxComponentsSet) {
+				for(HashSet<Integer> hs2 : auxComponentsSet) {
 					if(hs1.size() > hs2.size() && hs1 != hs2) {
 						HashSet<Integer> intersection = new HashSet<Integer>(hs1);
 						intersection.retainAll(hs2);
 						
 						if(intersection.size() != 0) {
 							hs1.addAll(hs2);
-							indexRemove.add(newComponentsSet.indexOf(hs2));
+							indexRemove.add(auxComponentsSet.indexOf(hs2));
 						}
 					}
 				}
 			}
+			int j;
 			
-			for(Integer index : indexRemove) {
-				HashSet<Integer> hs = newComponentsSet.get(index);
-				newComponentsSet.remove(hs);
+			for(j=0; j < auxComponentsSet.size(); j++) {
+				if(!indexRemove.contains(j)) {
+					HashSet<Integer> hs = auxComponentsSet.get(j);
+					finalComponentsSet.add(hs);
+				}
 			}
 			
-			main.setComponentsSet(newComponentsSet);
+			mainSubgraph.setComponentsSet(finalComponentsSet);
 			
 			if(unionFlag) {
-				main.getConjuntoVertices().addAll(proximo.getConjuntoVertices());
+				mainSubgraph.getConjuntoVertices().addAll(nextSubgraph.getConjuntoVertices());
 				unionFlag = false;
-				listOfSubgraphs.remove(proximo);
 			}
-			else
-				i++;
+			i++;
 			System.out.println("");
 			printSubGraphsProperties();
 		}
@@ -173,17 +189,23 @@ public class Grafo {
 		long endTime = System.currentTimeMillis();
 		long duration = endTime - startTime;
 		
-		System.out.println("HashSet: " + duration);
 		System.out.print("Labels: ");
 		
 		Iterator<String> iterator = labelsMLST.iterator();
 		while(iterator.hasNext()) {
 			System.out.print(iterator.next());
 		}
+		System.out.println(" Running time: " + duration);
 		
 		return labelsMLST.size();
 	}
 	
+	private boolean hasIntersection(HashSet<Integer> conjuntoVerticesMain, HashSet<Integer> conjuntoVerticesProximo) {
+		HashSet<Integer> intersection = new HashSet<Integer>(conjuntoVerticesMain);
+		intersection.retainAll(conjuntoVerticesProximo);
+		return !intersection.isEmpty();
+	}
+
 	private void orderSubGraphs() {
 		Collections.sort(listOfSubgraphs, new Comparator<SubGraph>() {
 	         @Override
@@ -241,10 +263,10 @@ public class Grafo {
 	             .map((int[] row) -> row.clone())
 	             .toArray((int length) -> new int[length][]);
 		
-		LinkedList<HashSet<Integer>> listSet = new LinkedList<>();
-		int arestas = 0;
+		LinkedList<HashSet<Integer>> listOfComponentSet = new LinkedList<>();
+		int edges = 0;
 		HashSet<Integer> hash = new HashSet<>();
-		listSet.add(new HashSet<>());
+		listOfComponentSet.add(new HashSet<>());
 		int jDimension = 0;
 		
 		for(i=0 ; i < totalVertices; i++) {
@@ -259,39 +281,39 @@ public class Grafo {
 					
 					boolean added = false;
 					int indexJ = 0, indexI = 0;
-					for(HashSet<Integer> hs : listSet) {
+					for(HashSet<Integer> hs : listOfComponentSet) {
 						if(hs.isEmpty() || hs.contains(i)) {
 							//hs.add(i);
 							hs.add(j);
 							added = true;
-							indexI = listSet.indexOf(hs);
+							indexI = listOfComponentSet.indexOf(hs);
 						} 
 					}
 					
-					for(HashSet<Integer> hs : listSet) {
+					for(HashSet<Integer> hs : listOfComponentSet) {
 						if(hs.isEmpty() || hs.contains(j)) {
 							hs.add(i);
 							//hs.add(j);
 							added = true;
-							indexJ = listSet.indexOf(hs);
+							indexJ = listOfComponentSet.indexOf(hs);
 							if(indexJ != indexI)
 								break;
 						} 
 					}
 					
 					if(indexI != indexJ) {
-						HashSet<Integer> h1 = listSet.get(indexI);
-						listSet.get(indexJ).addAll(h1);
-						listSet.remove(indexI);
+						HashSet<Integer> h1 = listOfComponentSet.get(indexI);
+						listOfComponentSet.get(indexJ).addAll(h1);
+						listOfComponentSet.remove(indexI);
 					}
 					
 					if(!added) {
 						HashSet<Integer> hs = new HashSet<>();
 						hs.add(i);
 						hs.add(j);
-						listSet.add(hs);
+						listOfComponentSet.add(hs);
 					}
-					arestas++;
+					edges++;
 				}
 			}
 			//printIncidenceMatrix(label, matrixOfSubGraph);
@@ -300,11 +322,11 @@ public class Grafo {
 		}
 		
 		SubGraph subGraph = new SubGraph(label, matrixOfSubGraph);
-		subGraph.setArestas(arestas);
+		subGraph.setEdges(edges);
 		subGraph.setConjuntoVertices(hash);
-		subGraph.setComponentsSet(listSet);
-		subGraph.setComponents(listSet.size());
-		printIncidenceMatrix(label, subGraph.getIncidenceMatrix());
+		subGraph.setComponentsSet(listOfComponentSet);
+		subGraph.setComponents(listOfComponentSet.size());
+		//printIncidenceMatrix(label, subGraph.getIncidenceMatrix());
 		return subGraph;
 	}
 	
