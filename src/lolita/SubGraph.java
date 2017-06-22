@@ -6,17 +6,22 @@ import java.util.LinkedList;
 public class SubGraph {
 	
 	private int incidenceMatrix[][];
-	private int components;
 	private int arestas;
 	private int label;
 	private HashSet<Integer> conjuntoVertices;
 	private LinkedList<HashSet<Integer>> componentsSet;
+	private HashSet<Aresta> edgeSet;
+	private boolean consumed;
+	private boolean contained;
 	
 	public SubGraph(int label, int incidenceMatrix[][]) {
 		this.setIncidenceMatrix(incidenceMatrix);
 		this.componentsSet = new LinkedList<>();
 		this.setConjuntoVertices(new HashSet<>());
 		this.label = label;
+		this.setConsumed(false);
+		this.setContained(false);
+		this.setEdgeSet(new HashSet<Aresta>());
 	}
 
 	public LinkedList<HashSet<Integer>> getComponentsSet() {
@@ -24,11 +29,7 @@ public class SubGraph {
 	}
 
 	public int getComponents() {
-		return components;
-	}
-
-	public void setComponents(int components) {
-		this.components = components;
+		return componentsSet.size();
 	}
 
 	public int[][] getIncidenceMatrix() {
@@ -68,12 +69,36 @@ public class SubGraph {
 	}
 
 	public int getMaxComponent() {
-		int maior = -999999;
+		int maior = -99999999;
 		for(HashSet<Integer> hs: componentsSet) {
 			if(hs.size() > maior)
 				maior = hs.size();
 		}
 		return maior;
+	}
+
+	public boolean isContained() {
+		return contained;
+	}
+
+	public void setContained(boolean contained) {
+		this.contained = contained;
+	}
+
+	public boolean isConsumed() {
+		return consumed;
+	}
+
+	public void setConsumed(boolean consumed) {
+		this.consumed = consumed;
+	}
+
+	public HashSet<Aresta> getEdgeSet() {
+		return edgeSet;
+	}
+
+	public void setEdgeSet(HashSet<Aresta> edgeSet) {
+		this.edgeSet = edgeSet;
 	}
 
 }

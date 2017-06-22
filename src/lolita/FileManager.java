@@ -10,17 +10,17 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-public class GerenciadorArquivos {
+public class FileManager {
 	
 	private String rootPath = Paths.get("").toAbsolutePath(). toString();
-	private String subPathInstancesFolder = "/base/instancias/";
+	private String subPathInstancesFolder = "/base/instancias_relatorio/";
 	
 	private static File instancesFolder= null;
 	
 	private File[] listOfInstancesFolder = null;
 	private File[] currentListOfFiles = null;
-	public GerenciadorArquivos() {
-		GerenciadorArquivos.instancesFolder = new File(rootPath + subPathInstancesFolder);
+	public FileManager() {
+		FileManager.instancesFolder = new File(rootPath + subPathInstancesFolder);
 	}
 	
 	public void loadFolders() {
@@ -31,9 +31,9 @@ public class GerenciadorArquivos {
 		setCurrentListOfFiles(listOfInstancesFolder[i].listFiles());
 	}
 	
-	public LinkedList<Grafo> lerArquivoTransacao(Path path){
-		System.out.println(path.getFileName());
-		LinkedList<Grafo> grafos = new LinkedList<>();
+	public LinkedList<Graph> readGraphFile(Path path, int var){
+		System.out.print(var + " "+ path.getFileName() + " ");
+		LinkedList<Graph> grafos = new LinkedList<>();
 		List<String> linhas = new ArrayList<>();
 		String[] cabecalho = null; 
 	   
@@ -49,7 +49,7 @@ public class GerenciadorArquivos {
 		int fromIndex = 1, toIndex = totalVertices;
 	   
 		for(i=0 ; i < 10 ; i++) { //for(i=0 ; i < 10 ; i++) {
-			Grafo grafo = new Grafo(totalVertices, totalRotulos);
+			Graph grafo = new Graph(totalVertices, totalRotulos);
 			grafo.setLinhasBrutas(linhas.subList(fromIndex, toIndex));
 			Collections.reverse(grafo.getLinhasBrutas());
 			//System.out.println("\nGrafo " + i);
